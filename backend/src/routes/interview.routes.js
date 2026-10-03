@@ -32,4 +32,13 @@ interviewRouter.get("/report/:interviewId", authMiddleware.authUser,
 
 interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInterviewReportsController)
 
+
+/**
+ * @route GET /api/interview/resume/pdf
+ * @description generate resume pdf on the basis of user self description, resume, jobDescription
+ * @access Private
+ */
+
+interviewRouter.post("/resume/pdf/:interviewId", authMiddleware.authUser, interviewController.generateResumePdfController)
+
 module.exports = interviewRouter
