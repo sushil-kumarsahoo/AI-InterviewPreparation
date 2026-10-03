@@ -14,11 +14,11 @@ export const useAuth = () => {
       setUser(data.user);
     } catch (err) {
       console.log(err);
-    } finally{
-       setLoading(false)
+    } finally {
+      setLoading(false);
     }
     setLoading(false);
-  }
+  };
 
   const handleRegister = async ({ username, email, password }) => {
     setLoading(true);
@@ -27,11 +27,11 @@ export const useAuth = () => {
       setUser(data.user);
     } catch (err) {
       console.log(err);
-    } finally{
-        setLoading(false)
+    } finally {
+      setLoading(false);
     }
     setLoading(false);
-  }
+  };
 
   const handleLogout = async () => {
     setLoading(true);
@@ -40,20 +40,25 @@ export const useAuth = () => {
       setUser(null);
     } catch (err) {
       console.log(err);
-    } finally{
-        setLoading(false)
+    } finally {
+      setLoading(false);
     }
     setLoading(false);
-  }
+  };
 
-   useEffect(()=>{
-        const getAndSetUser = async () => {
-          const data = await getMe()
-          setUser(data.user)
-          setLoading(false)
-        }
-        getAndSetUser()
-     },[])
+  useEffect(() => {
+    const getAndSetUser = async () => {
+      try {
+        const data = await getMe();
+        setUser(data.user);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getAndSetUser();
+  }, []);
 
   return { user, loading, handleLogin, handleRegister, handleLogout };
 };
