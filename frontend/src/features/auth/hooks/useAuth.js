@@ -12,13 +12,15 @@ export const useAuth = () => {
     try {
       const data = await login({ email, password });
       setUser(data.user);
+      return true;
     } catch (err) {
       console.log(err);
+      return false;
     } finally {
       setLoading(false);
     }
-    setLoading(false);
   };
+
 
   const handleRegister = async ({ username, email, password }) => {
     setLoading(true);

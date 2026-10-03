@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import "../style/home.scss";
 import { useInterview } from "../hook/useInterview";
 import { useNavigate } from "react-router";
+import UserMenu from "../../auth/components/UserMenu";
 
 
 const Home = () => {
@@ -20,6 +21,7 @@ const Home = () => {
 
   return (
     <div className="home-page">
+        <UserMenu />
       {/* Page Header */}
 
       <header className="page-header">

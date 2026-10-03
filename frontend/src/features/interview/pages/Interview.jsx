@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "../style/interview.scss";
 import { useInterview} from "../hook/useInterview";
 import { useParams } from "react-router";
+import UserMenu from "../../auth/components/UserMenu";
 
 const NAV_ITEMS = [
   {
@@ -156,6 +157,7 @@ const Interview = () => {
 
   return (
     <div className="interview-page">
+      <UserMenu />
       <div className="interview-layout">
         {/* ── Left Nav ── */}
         <nav className="interview-nav">
