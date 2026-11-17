@@ -8,7 +8,8 @@ $text-primary: #f8fafc;
 $text-muted: #94a3b8;
 $accent: #6366f1;
 $accent-cyan: #38bdf8;
-$font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+$font-stack: 'Inter', system-ui, -apple-system, sans-serif;
+$font-heading: 'Space Grotesk', $font-stack;
 
 // severity palette
 $severity-high: #f43f5e;

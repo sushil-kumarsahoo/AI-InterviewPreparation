@@ -12,7 +12,8 @@ $badge-required: #f43f5e;
 $badge-best:     #10b981;
 $info-bg:        rgba(99, 102, 241, 0.08);
 $info-border:    rgba(99, 102, 241, 0.2);
-$font-stack:     'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+$font-stack:     'Inter', system-ui, -apple-system, sans-serif;
+$font-heading:   'Space Grotesk', $font-stack;
 
 .home-wrapper {
   min-height: 100vh;
@@ -36,6 +37,7 @@ $font-stack:     'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   text-align: center;
 
   h1 {
+    font-family: $font-heading;
     font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 0.65rem;

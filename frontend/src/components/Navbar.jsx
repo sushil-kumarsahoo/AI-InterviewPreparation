@@ -1,29 +1,25 @@
-import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import "../styles/navbar.scss";
 
 const Navbar = () => {
   const { user, handleLogout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const onLogout = async () => {
-    setMenuOpen(false);
     await handleLogout();
     navigate("/");
+  };
+
+  const scrollToSection = (e, targetId) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
   };
 
   const initial = user?.username?.charAt(0).toUpperCase() || "U";
@@ -31,7 +27,7 @@ const Navbar = () => {
   return (
     <header className="navbar">
       <div className="navbar__container">
-        {/* Brand Logo */}
+        {/* Brand Logo - Left End */}
         <Link to="/" className="navbar__brand">
           <div className="navbar__logo-icon">
             <svg
@@ -50,10 +46,9 @@ const Navbar = () => {
           <span className="navbar__brand-name">
             Interview<span className="navbar__brand-gradient">AI</span>
           </span>
-          <span className="navbar__badge">Pro</span>
         </Link>
 
-        {/* Center Navigation */}
+        {/* Navigation Links - Center */}
         <nav className="navbar__links">
           <Link
             to="/"
@@ -71,25 +66,29 @@ const Navbar = () => {
           )}
           {!user && (
             <>
-              <a href="#features" className="navbar__link">
+              <a
+                href="/#features"
+                className="navbar__link"
+                onClick={(e) => scrollToSection(e, "features")}
+              >
                 Features
               </a>
-              <a href="#how-it-works" className="navbar__link">
+              <a
+                href="/#how-it-works"
+                className="navbar__link"
+                onClick={(e) => scrollToSection(e, "how-it-works")}
+              >
                 How It Works
               </a>
             </>
           )}
         </nav>
 
-        {/* Right Side Actions / User Profile */}
+        {/* Right End - Actions & Direct Logout */}
         <div className="navbar__actions">
           {user ? (
-            <div className="navbar__user-menu" ref={menuRef}>
-              <button
-                className="navbar__user-trigger"
-                onClick={() => setMenuOpen((prev) => !prev)}
-                aria-expanded={menuOpen}
-              >
+            <div className="navbar__user-section">
+              <div className="navbar__user-badge" title={user.email || user.username}>
                 {user.avatar ? (
                   <img
                     src={user.avatar}
@@ -101,8 +100,15 @@ const Navbar = () => {
                   <div className="navbar__avatar-initial">{initial}</div>
                 )}
                 <span className="navbar__username">{user.username}</span>
+              </div>
+
+              <button
+                type="button"
+                className="navbar__logout-btn"
+                onClick={onLogout}
+                title="Sign Out"
+              >
                 <svg
-                  className={`navbar__chevron ${menuOpen ? "navbar__chevron--open" : ""}`}
                   width="16"
                   height="16"
                   viewBox="0 0 24 24"
@@ -112,64 +118,12 @@ const Navbar = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <polyline points="6 9 12 15 18 9" />
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
                 </svg>
+                <span>Logout</span>
               </button>
-
-              {menuOpen && (
-                <div className="navbar__dropdown">
-                  <div className="navbar__dropdown-header">
-                    <p className="navbar__dropdown-user">{user.username}</p>
-                    <p className="navbar__dropdown-email">{user.email}</p>
-                  </div>
-
-                  <div className="navbar__dropdown-divider" />
-
-                  <Link
-                    to="/dashboard"
-                    className="navbar__dropdown-item"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="3" y="3" width="7" height="7" />
-                      <rect x="14" y="3" width="7" height="7" />
-                      <rect x="14" y="14" width="7" height="7" />
-                      <rect x="3" y="14" width="7" height="7" />
-                    </svg>
-                    My Strategies
-                  </Link>
-
-                  <div className="navbar__dropdown-divider" />
-
-                  <button
-                    className="navbar__dropdown-item navbar__dropdown-item--logout"
-                    onClick={onLogout}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Sign Out
-                  </button>
-                </div>
-              )}
             </div>
           ) : (
             <div className="navbar__auth-buttons">
