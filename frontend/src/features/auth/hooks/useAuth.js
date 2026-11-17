@@ -21,7 +21,6 @@ export const useAuth = () => {
     }
   };
 
-
   const handleRegister = async ({ username, email, password }) => {
     setLoading(true);
     try {
@@ -47,20 +46,6 @@ export const useAuth = () => {
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    const getAndSetUser = async () => {
-      try {
-        const data = await getMe();
-        setUser(data.user);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getAndSetUser();
-  }, []);
 
   return { user, loading, handleLogin, handleRegister, handleLogout };
 };
