@@ -1,54 +1,107 @@
 import { useState } from "react";
-import { Link } from "react-router";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import "../auth.form.scss";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { loading, handleRegister } = useAuth();
 
-    const navigate = useNavigate()
-    const [username, setUsername] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-    const {loading, handleRegister} = useAuth()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await handleRegister({username, email, password})
-        navigate('/')
+    if (!username.trim() || !email.trim() || !password) {
+      setError("Please fill in all fields.");
+      return;
     }
 
-    if(loading) {
-        return (<main>Loading...</main>)
+    const res = await handleRegister({ username, email, password });
+    if (res.success) {
+      navigate("/dashboard");
+    } else {
+      setError(res.error || "Registration failed. Try a different username/email.");
     }
+  };
 
+  if (loading) {
     return (
-        <main>
-            <div className="form-container">
-                <h1>Register</h1>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label htmlFor="username">Usernme</label>
-                        <input onChange={ (e)=> {setUsername(e.target.value)}} type="text" id="username" name="username" placeholder="Enter your name" />
-                    </div>
+      <main className="auth-loading">
+        <div className="spinner"></div>
+        <p>Creating your account...</p>
+      </main>
+    );
+  }
 
-                    <div className="input-group">
-                        <label htmlFor="email">Email</label>
-                        <input onChange={(e)=>{setEmail(e.target.value)}} type="email" id="email" name="email" placeholder="Enter email address" />
-                    </div>
+  return (
+    <main className="auth-page">
+      <div className="form-container">
+        <div className="auth-header">
+          <Link to="/" className="brand-logo">
+            Interview<span className="gradient-text">AI</span>
+          </Link>
+          <h1>Create an Account</h1>
+          <p className="auth-subtitle">Get started with your custom interview strategy</p>
+        </div>
 
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input onChange={(e)=>{setPassword(e.target.value)}} type="password" id="password" name="password" placeholder="Enter password address" />
-                    </div>
+        {error && <div className="auth-error-alert">{error}</div>}
 
-                    <button className="button primary-button">Register</button>
-                </form>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
 
-                <p>Already have an account? <Link to="/login">Login</Link></p>
-            </div>
-        </main>
-    )
-}
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              id="email"
+              name="email"
+              placeholder="name@company.com"
+              required
+            />
+          </div>
 
-export default Register
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button type="submit" className="button primary-button submit-btn">
+            Register
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign in here</Link>
+        </p>
+      </div>
+    </main>
+  );
+};
+
+export default Register;

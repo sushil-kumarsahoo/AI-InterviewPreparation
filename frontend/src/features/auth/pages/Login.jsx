@@ -1,51 +1,92 @@
-import "../auth.form.scss"
-import {  Link } from "react-router";
-import { useAuth } from "../hooks/useAuth";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../hooks/useAuth";
+import "../auth.form.scss";
 
 const Login = () => {
+  const { loading, handleLogin } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const {loading, handleLogin} = useAuth()
-    const [email, setEmail ] = useState("")
-    const [password, setPassword ] = useState("")
-    const navigate = useNavigate()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const ok = await handleLogin({email, password})
-        if(ok) navigate('/home')
+    if (!email.trim() || !password) {
+      setError("Please fill in all fields.");
+      return;
     }
 
-    if(loading){
-        return (<main><h1>Loading...</h1></main>)
+    const res = await handleLogin({ email, password });
+    if (res.success) {
+      navigate("/dashboard");
+    } else {
+      setError(res.error || "Invalid email or password.");
     }
+  };
 
-
+  if (loading) {
     return (
-        <main>
-            <div className="form-container">
-                <h1>Login</h1>
+      <main className="auth-loading">
+        <div className="spinner"></div>
+        <p>Signing you in...</p>
+      </main>
+    );
+  }
 
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label htmlFor="email">Email</label>
-                        <input onChange={(e) => {setEmail(e.target.value)}} type="email" id="email" name="email" placeholder="Enter email address" />
-                    </div>
+  return (
+    <main className="auth-page">
+      <div className="form-container">
+        <div className="auth-header">
+          <Link to="/" className="brand-logo">
+            Interview<span className="gradient-text">AI</span>
+          </Link>
+          <h1>Welcome back</h1>
+          <p className="auth-subtitle">Sign in to your account to continue</p>
+        </div>
 
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input onChange={ (e) => {setPassword(e.target.value)} } type="password" id="password" name="password" placeholder="Enter password address" />
-                    </div>
+        {error && <div className="auth-error-alert">{error}</div>}
 
-                    <button className="button primary-button">Login</button>
-                </form>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              id="email"
+              name="email"
+              placeholder="name@company.com"
+              required
+            />
+          </div>
 
-                <p>Don't have an account? <Link to="/register">Register</Link></p>
-            </div>
-        </main>
-    )
-}
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+            />
+          </div>
 
-export default Login
+          <button type="submit" className="button primary-button submit-btn">
+            Login
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Don't have an account? <Link to="/register">Create one now</Link>
+        </p>
+      </div>
+    </main>
+  );
+};
+
+export default Login;

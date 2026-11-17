@@ -128,7 +128,7 @@ severity must be "low", "medium" or "high".
 Give 5 technical questions, 5 behavioral questions, all real skill gaps, and a 7-day plan.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
@@ -206,7 +206,7 @@ OUTPUT FORMAT
 Return ONLY a valid JSON object with a single field "html". The value must be the complete HTML document (starting with <!DOCTYPE html>) as one string.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
