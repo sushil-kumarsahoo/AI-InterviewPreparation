@@ -36,4 +36,15 @@ authRouter.get("/logout", authController.logoutUserController)
 
 authRouter.get("/get-me", authMiddleware.authUser, authController.getMeController)
 
+/**
+ * @route POST /api/auth/google
+ * @description login a user with google account
+ * @access Public
+ */
+
+authRouter.post("/google", authController.googleAuthController);
+
+
+
+
 module.exports = authRouter

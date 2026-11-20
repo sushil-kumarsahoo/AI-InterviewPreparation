@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
-  const { loading, handleLogin } = useAuth();
+  const { loading, handleLogin, handleGoogleAuth } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +24,16 @@ const Login = () => {
       navigate("/dashboard");
     } else {
       setError(res.error || "Invalid email or password.");
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+    const res = await handleGoogleAuth({ idToken: credentialResponse.credential });
+    if (res.success) {
+      navigate("/dashboard");
+    } else {
+      setError(res.error || "Google Sign-In failed. Please try again.");
     }
   };
 
@@ -107,6 +118,26 @@ const Login = () => {
             Login
           </button>
         </form>
+
+        {/* Google Authentication Section */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative flex items-center justify-center w-full my-1">
+            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+            <span className="absolute px-3 bg-white dark:bg-slate-900 text-xs uppercase font-semibold text-slate-400">
+              OR
+            </span>
+          </div>
+
+          <div className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Sign-In failed. Please try again.")}
+              theme="outline"
+              shape="pill"
+              size="large"
+            />
+          </div>
+        </div>
 
         <p className="text-center text-xs text-slate-600 dark:text-slate-400">
           Don't have an account?{" "}

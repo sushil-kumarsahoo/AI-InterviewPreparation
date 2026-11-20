@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "../auth.context";
-import { login, register, logout } from "../services/auth.api";
+import { login, register, logout, googleLogin } from "../services/auth.api";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -40,6 +40,23 @@ export const useAuth = () => {
     }
   };
 
+  const handleGoogleAuth = async ({ idToken }) => {
+    setLoading(true);
+    try {
+      const data = await googleLogin({ idToken });
+      setUser(data.user);
+      return { success: true };
+    } catch (err) {
+      console.error(err);
+      return {
+        success: false,
+        error: err.response?.data?.message || "Google Sign-In failed",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     setLoading(true);
     try {
@@ -61,6 +78,7 @@ export const useAuth = () => {
     setLoading,
     handleLogin,
     handleRegister,
+    handleGoogleAuth,
     handleLogout,
   };
 };

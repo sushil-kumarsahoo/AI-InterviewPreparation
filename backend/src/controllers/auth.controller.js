@@ -2,6 +2,8 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const tokenBlackListModel = require("../models/blackList.model");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /**
  * @route POST api/auth/register
@@ -18,13 +20,11 @@ async function registerUserController(req, res) {
       });
     }
 
-    const isUserAlreadyExist = await userModel.findOne({
-      $or: [{ username }, { email }],
-    });
+    const isUserAlreadyExist = await userModel.findOne({ email });
 
     if (isUserAlreadyExist) {
       return res.status(400).json({
-        message: "Account already exists with this email address or username",
+        message: "Account already exists with this email address",
       });
     }
 
@@ -171,9 +171,98 @@ async function getMeController(req, res) {
   }
 }
 
+/**
+ * @name googleLoginController
+ * @description login a user with google account
+ * @access Public
+ */
+async function googleAuthController(req, res) {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ message: "Google ID Token is required." });
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.trim() : null;
+    if (!clientId) {
+      console.error("GOOGLE_CLIENT_ID is not set in backend .env");
+      return res.status(500).json({ message: "Server misconfiguration: GOOGLE_CLIENT_ID is missing." });
+    }
+
+    const client = new OAuth2Client(clientId);
+
+    // 1. Verify token with Google
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: clientId,
+    });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    // 2. Find existing user by googleId or email
+    let user = await userModel.findOne({
+      $or: [{ googleId }, { email }],
+    });
+
+    if (!user) {
+      // Create user with their exact clean name from Google (no extra numbers or hyphens)
+      const displayName = name || email.split("@")[0];
+
+      user = await userModel.create({
+        username: displayName,
+        email,
+        avatar: picture || "",
+        googleId,
+      });
+    } else {
+      // User already exists! Link Google ID & avatar if not already set
+      let needsSave = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        needsSave = true;
+      }
+      if (picture && !user.avatar) {
+        user.avatar = picture;
+        needsSave = true;
+      }
+      if (needsSave) {
+        await user.save();
+      }
+    }
+
+    // 3. Issue app JWT cookie and log in to dashboard
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
+
+    res.status(200).json({
+      message: "Google login successful",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error("Google Auth error:", error.message || error);
+    res.status(401).json({ message: error.message || "Google verification failed." });
+  }
+}
+
+
 module.exports = {
   registerUserController,
   loginUserController,
   logoutUserController,
   getMeController,
+  googleAuthController
 };
