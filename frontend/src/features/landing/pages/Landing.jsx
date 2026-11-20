@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Navbar from "../../../components/Navbar";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const FEATURES = [
   {
@@ -46,6 +47,7 @@ const FEATURES = [
 ];
 
 const Landing = () => {
+  const { user } = useAuth();
   return (
     <div className="relative min-h-screen bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200 overflow-x-hidden">
       
@@ -98,7 +100,7 @@ const Landing = () => {
 
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 w-full sm:w-auto">
             <Link
-              to="/dashboard"
+              to={user ? "/dashboard" : "/login"}
               className="primary-button text-base px-8 py-3.5 rounded-xl shadow-lg hover:shadow-indigo-500/25 w-full sm:w-auto flex items-center justify-center gap-2"
             >
               Create Your Plan Free
