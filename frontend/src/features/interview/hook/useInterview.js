@@ -4,7 +4,7 @@ import {
   getInterviewReportById,
   generateResumePdf,
 } from "../services/interview.api";
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import { InterviewContext } from "../interview.context";
 
 export const useInterview = () => {
@@ -17,41 +17,43 @@ export const useInterview = () => {
     context;
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
-  const generateReport = async ({
-    jobDescription,
-    selfDescription,
-    resumeFile,
-  }) => {
-    setLoading(true);
-    try {
-      const response = await generateInterviewReport({
-        jobDescription,
-        selfDescription,
-        resumeFile,
-      });
-      setReport(response?.interviewReport);
-      return response?.interviewReport;
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const generateReport = useCallback(
+    async ({ jobDescription, selfDescription, resumeFile }) => {
+      setLoading(true);
+      try {
+        const response = await generateInterviewReport({
+          jobDescription,
+          selfDescription,
+          resumeFile,
+        });
+        setReport(response?.interviewReport);
+        return response?.interviewReport;
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setLoading, setReport]
+  );
 
-  const getReportById = async (interviewId) => {
-    setLoading(true);
-    try {
-      const response = await getInterviewReportById(interviewId);
-      setReport(response?.interviewReport);
-      return response?.interviewReport;
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const getReportById = useCallback(
+    async (interviewId) => {
+      setLoading(true);
+      try {
+        const response = await getInterviewReportById(interviewId);
+        setReport(response?.interviewReport);
+        return response?.interviewReport;
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setLoading, setReport]
+  );
 
-  const getReports = async () => {
+  const getReports = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getAllInterviewReports();
@@ -62,14 +64,14 @@ export const useInterview = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading, setReports]);
 
-  const getResumePdf = async (interviewId) => {
+  const getResumePdf = useCallback(async (interviewId) => {
     setDownloadingPdf(true);
     try {
       const blobData = await generateResumePdf({ interviewId });
       const url = window.URL.createObjectURL(
-        new Blob([blobData], { type: "application/pdf" }),
+        new Blob([blobData], { type: "application/pdf" })
       );
       const link = document.createElement("a");
       link.href = url;
@@ -83,7 +85,7 @@ export const useInterview = () => {
     } finally {
       setDownloadingPdf(false);
     }
-  };
+  }, []);
 
   return {
     loading,
