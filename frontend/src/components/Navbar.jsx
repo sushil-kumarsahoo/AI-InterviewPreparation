@@ -45,8 +45,8 @@ const Navbar = () => {
   const onLogout = async () => {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
+    navigate("/", { replace: true });
     await handleLogout();
-    navigate("/");
   };
 
   const scrollToSection = (e, targetId) => {
